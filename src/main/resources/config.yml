@@ -1,0 +1,19 @@
+# How close (in blocks) land you may not change has to be before something counts as near it (tag jsarcana.edge).
+# Near such land, block-changing spell effects only do their harmless part, so a spell can't reach over the line.
+edge:
+  player: 16          # a player casting (an Area or a Chain goes off around them at once)
+  focus: 16           # a Spell Focus casting
+  # A Spell Keystone pulsing. Its Field Rods must stand within 16 blocks of it, so its field reaches 16 at most.
+  # All or nothing: a keystone within this many blocks of land that isn't its own town's (the wild included; for a
+  # keystone in the wild, any town's land) changes no blocks at all. Lower it for keystones in small towns.
+  keystone: 16
+  still-spell: 8      # runes, walls, delays and lingering Areas
+  flying-spell: 12    # bolts in flight (checked every tick)
+
+# How often to check, in ticks. Bolts in flight are always checked every tick.
+every:
+  players-and-still-spells: 5
+  objects: 40         # pots, tables, jars, batteries and the like: which town's land they stand on
+  # JPack's Builder's Wand: how often a held selection is checked again (towns change). A new or moved box is
+  # always checked at once, on the next tick.
+  builders-wand: 10

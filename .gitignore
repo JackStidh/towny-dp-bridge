@@ -1,0 +1,31 @@
+# Gradle
+.gradle/
+build/
+.kotlin/
+local.properties
+
+# Java
+*.class
+*.log
+hs_err_pid*
+
+# IntelliJ IDEA
+.idea/
+*.iml
+*.ipr
+*.iws
+out/
+
+# Eclipse / VS Code
+.classpath
+.project
+.settings/
+bin/
+.vscode/
+
+# Test server folders some people keep next to the project
+run/
+
+# OS
+.DS_Store
+Thumbs.db

@@ -1,0 +1,9 @@
+name: ArcanaTownyBridge
+version: '${version}'
+main: net.arcana.townybridge.ArcanaTownyBridge
+description: Tells the Arcana datapack where towns are, by keeping tags and scores on players, Spell Foci and spells,
+  and JPack's Builder's Wand whether its box may be built in.
+# Paper's API version for Minecraft 26.3 (docs.papermc.io: valid values 1.13 - 26.3). A plain plugin.yml plugin:
+# Paper 26.x still loads these; depend means Towny loads first, and without Towny this plugin won't load.
+api-version: '26.3'
+depend: [Towny]
