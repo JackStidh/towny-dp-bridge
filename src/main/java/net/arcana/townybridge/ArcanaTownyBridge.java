@@ -38,10 +38,10 @@ import java.util.UUID;
  * Spells from a ring in the off hand (datapack build 49) are the wearer's, exactly like a wand's: the datapack gives
  * their carriers the wearer's jsarcana.pid in jsarcana.sp.pid, so nothing here tells them apart.
  *
- * For JPack's Builder's Wand (1.4.0), on players, it reads jcts.bw.rev (the selection's revision, absent
- * or 0 for none) and the box jcts.bw.x1 / .z1 / .x2 / .z2, and writes jcts.bw.ok (the rev it last checked) and the
- * tag jcts.bw.deny (some of the box is land that player may not build in). Without JPack none of it exists and
- * nothing happens.
+ * For JCreates' Builder's Wand pack (namespace jc_bwand; since 1.4.0, renamed in 1.5.0), on players, it reads
+ * jc_bwand.rev (the selection's revision, absent or 0 for none) and the box jc_bwand.x1 / .z1 / .x2 / .z2, and
+ * writes jc_bwand.ok (the rev it last checked) and the tag jc_bwand.deny (some of the box is land that player may
+ * not build in). Without the pack none of it exists and nothing happens.
  */
 public final class ArcanaTownyBridge extends JavaPlugin {
 
@@ -53,7 +53,7 @@ public final class ArcanaTownyBridge extends JavaPlugin {
      *  number would lock out an owner who isn't a resident of that town. */
     private static final Set<String> OBJECTS = Set.of("jsarcana.pot", "jsarcana.tb", "jsarcana.jar", "jsarcana.rack", "jsarcana.ball", "jsarcana.hb", "jsarcana.carp", "jsarcana.sp.rune", "jsarcana.nx", "jsarcana.er", "jsarcana.bag",
             "jsarcana.bat", "jsarcana.wa");
-    private static final String WAND_DENY = "jcts.bw.deny";
+    private static final String WAND_DENY = "jc_bwand.deny";
     /** a Builder's Wand box wider than this (in blocks, along x or z) is a bad score, not a selection: denied unchecked */
     private static final int WAND_MAX_SPAN = 64;
 
@@ -80,7 +80,7 @@ public final class ArcanaTownyBridge extends JavaPlugin {
     private void run() {
         tick++;
         Scoreboard sb = Bukkit.getScoreboardManager().getMainScoreboard();
-        builderWand(sb);                              // JPack's, so before the J's Arcana check below
+        builderWand(sb);                              // the Builder's Wand pack's, so before the J's Arcana check below
         Objective dg = sb.getObjective("jsarcana.sp.dg");
         if (dg == null) return;                       // the datapack hasn't loaded yet
         Objective town = sb.getObjective("jsarcana.town");
@@ -197,15 +197,15 @@ public final class ArcanaTownyBridge extends JavaPlugin {
         else e.removeScoreboardTag(tag);
     }
 
-    // ---------------------------------------------------------------- JPack's Builder's Wand
+    // ---------------------------------------------------------------- the Builder's Wand pack (jc_bwand)
     /** checks a selection as soon as its rev is new (the datapack waits for ok == rev), and every held one again each
      *  every.builders-wand ticks, since towns change. Players without a selection cost one score lookup */
     private void builderWand(Scoreboard sb) {
-        Objective rev = sb.getObjective("jcts.bw.rev");
-        if (rev == null) return;                      // no JPack (or it hasn't loaded yet)
-        Objective ok = sb.getObjective("jcts.bw.ok");
-        Objective x1 = sb.getObjective("jcts.bw.x1"), z1 = sb.getObjective("jcts.bw.z1");
-        Objective x2 = sb.getObjective("jcts.bw.x2"), z2 = sb.getObjective("jcts.bw.z2");
+        Objective rev = sb.getObjective("jc_bwand.rev");
+        if (rev == null) return;                      // no Builder's Wand pack (or it hasn't loaded yet)
+        Objective ok = sb.getObjective("jc_bwand.ok");
+        Objective x1 = sb.getObjective("jc_bwand.x1"), z1 = sb.getObjective("jc_bwand.z1");
+        Objective x2 = sb.getObjective("jc_bwand.x2"), z2 = sb.getObjective("jc_bwand.z2");
         if (ok == null || x1 == null || z1 == null || x2 == null || z2 == null) return;
         boolean again = tick % wandEvery == 0;
 

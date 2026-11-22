@@ -6,11 +6,12 @@ scoreboard tags and scores up to date on players and marker entities, and the da
 happens. The datapack never calls the plugin; the plugin never runs datapack functions. They only share the main
 scoreboard.
 
-It was written for two datapacks by JCreates: J's Arcana (namespace `jsarcana`, build 49) and JPack's Builder's Wand
-(objectives `jcts.bw.*`). Part of what it does is generic and can be used by any datapack; part of it only makes sense
-for J's Arcana's own entities. The [datapack interface](#the-datapack-interface) section says which is which.
+It was written for two datapacks by JCreates: J's Arcana (namespace `jsarcana`, build 49) and Builder's Wand
+(namespace `jc_bwand`, a standalone pack). Part of what it does is generic and can be used by any datapack; part
+of it only makes sense for J's Arcana's own entities. The [datapack interface](#the-datapack-interface) section says
+which is which.
 
-Current version: 1.4.0.
+Current version: 1.5.0.
 
 ## Requirements
 
@@ -20,8 +21,8 @@ Current version: 1.4.0.
 - **Java 25**, because Paper 26.1 and later require it.
 - **Towny 0.103.2.7 or newer**, the first Towny build that supports Minecraft 26.3 (a pre-release at the time of
   writing). `plugin.yml` has `depend: [Towny]`, so the plugin will not load without Towny.
-- A datapack that reads what the plugin writes: J's Arcana, JPack, or your own (see below). Without one the plugin
-  does nothing useful, but it does no harm either.
+- A datapack that reads what the plugin writes: J's Arcana, Builder's Wand, or your own (see below). Without one
+  the plugin does nothing useful, but it does no harm either.
 
 ## Install
 
@@ -45,12 +46,12 @@ Then, in the repository root:
 
     gradle build
 
-The jar ends up at `build/libs/ArcanaTownyBridge-1.4.0.jar`.
+The jar ends up at `build/libs/ArcanaTownyBridge-1.5.0.jar`.
 
 No Gradle wrapper is committed. If you want one, run `gradle wrapper --gradle-version 9.1.0` once and commit the
 generated files.
 
-The plugin version is set in one place, `version = "1.4.0"` in `build.gradle.kts`; it is copied into `plugin.yml`
+The plugin version is set in one place, `version = "1.5.0"` in `build.gradle.kts`; it is copied into `plugin.yml`
 at build time.
 
 `gradle.properties` says which Paper and Towny builds to compile against:
@@ -63,7 +64,7 @@ at build time.
   are the same in both.
 
 The GitHub Actions workflow in `.github/workflows/build.yml` builds every push and pull request with Temurin 25 and
-Gradle 9.1.0 and uploads the jar as an artifact. Pushing a tag that starts with `v` (for example `v1.4.0`) also
+Gradle 9.1.0 and uploads the jar as an artifact. Pushing a tag that starts with `v` (for example `v1.5.0`) also
 creates a GitHub Release with the jar attached. Keep the tag and the version in `build.gradle.kts` the same.
 
 ## Configuration
@@ -159,29 +160,31 @@ execute unless score @s jsarcana.town matches 1.. run return run tellraw @s {tex
 
 ### Generic: Builder's Wand box check
 
-This lets a datapack ask "may this player build in every column of this box?". It is written for JPack's Builder's
-Wand but works for any datapack that writes these scores. It does not need J's Arcana.
+This lets a datapack ask "may this player build in every column of this box?". It is written for JCreates'
+standalone Builder's Wand pack (namespace `jc_bwand`) but works for any datapack that writes these scores. It does
+not need J's Arcana. The names are in Builder's Wand's namespace: if your datapack uses them on a server that also
+runs Builder's Wand, both write the same per-player scores, so don't run two selections on one player at once.
 
-All six objectives must exist, or this part does nothing: `jcts.bw.rev`, `jcts.bw.ok`, `jcts.bw.x1`, `jcts.bw.z1`,
-`jcts.bw.x2`, `jcts.bw.z2`.
+All six objectives must exist, or this part does nothing: `jc_bwand.rev`, `jc_bwand.ok`, `jc_bwand.x1`,
+`jc_bwand.z1`, `jc_bwand.x2`, `jc_bwand.z2`.
 
 What the plugin reads, on each online player:
 
 | Name | Kind | Meaning |
 | --- | --- | --- |
-| `jcts.bw.rev` | score | The selection's revision. Absent or `0` (or below) means "no selection". Set it to a new positive value every time the box changes; the plugin only re-evaluates at once when `jcts.bw.rev` differs from `jcts.bw.ok`, so reusing the last value means the change is not noticed until the next periodic re-check. A global counter that only goes up is the simplest way. |
-| `jcts.bw.x1`, `jcts.bw.z1`, `jcts.bw.x2`, `jcts.bw.z2` | score | The box's block x/z bounds, inclusive. The plugin takes the min and max itself, but JPack keeps `x1 <= x2` and `z1 <= z2`. The box is in the player's current world; y is ignored. |
+| `jc_bwand.rev` | score | The selection's revision. Absent or `0` (or below) means "no selection". Set it to a new positive value every time the box changes; the plugin only re-evaluates at once when `jc_bwand.rev` differs from `jc_bwand.ok`, so reusing the last value means the change is not noticed until the next periodic re-check. A global counter that only goes up is the simplest way. |
+| `jc_bwand.x1`, `jc_bwand.z1`, `jc_bwand.x2`, `jc_bwand.z2` | score | The box's block x/z bounds, inclusive. The plugin takes the min and max itself, but Builder's Wand keeps `x1 <= x2` and `z1 <= z2`. The box is in the player's current world; y is ignored. |
 
 What the plugin writes, on each online player:
 
 | Name | Kind | Meaning |
 | --- | --- | --- |
-| `jcts.bw.ok` | score | The `jcts.bw.rev` value the plugin last evaluated. It is written after the tag, so when `jcts.bw.ok` equals `jcts.bw.rev`, `jcts.bw.deny` is correct for that box. Left alone when there is no selection. |
-| `jcts.bw.deny` | tag | Present if some part of the box is land where the player may not build. Removed when the whole box is allowed, and removed from players with no selection. |
+| `jc_bwand.ok` | score | The `jc_bwand.rev` value the plugin last evaluated. It is written after the tag, so when `jc_bwand.ok` equals `jc_bwand.rev`, `jc_bwand.deny` is correct for that box. Left alone when there is no selection. |
+| `jc_bwand.deny` | tag | Present if some part of the box is land where the player may not build. Removed when the whole box is allowed, and removed from players with no selection. |
 
 Timing: a new or changed selection (`rev != ok`) is checked on the plugin's next tick. A selection that has already
-been checked is checked again every `every.builders-wand` ticks; that can add or remove `jcts.bw.deny` without
-changing `jcts.bw.ok`. So read the tag at the moment you act, not only when `ok` catches up.
+been checked is checked again every `every.builders-wand` ticks; that can add or remove `jc_bwand.deny` without
+changing `jc_bwand.ok`. So read the tag at the moment you act, not only when `ok` catches up.
 
 How the box is checked: one location per 16x16 chunk that the box overlaps (a point of the box inside that chunk),
 at the player's current height, with the BUILD check described above. A box whose x or z bounds differ by 64 or more
@@ -196,37 +199,37 @@ The handshake, from the datapack's side:
 
 ```mcfunction
 # load
-scoreboard objectives add jcts.bw.rev dummy
-scoreboard objectives add jcts.bw.ok dummy
-scoreboard objectives add jcts.bw.x1 dummy
-scoreboard objectives add jcts.bw.z1 dummy
-scoreboard objectives add jcts.bw.x2 dummy
-scoreboard objectives add jcts.bw.z2 dummy
+scoreboard objectives add jc_bwand.rev dummy
+scoreboard objectives add jc_bwand.ok dummy
+scoreboard objectives add jc_bwand.x1 dummy
+scoreboard objectives add jc_bwand.z1 dummy
+scoreboard objectives add jc_bwand.x2 dummy
+scoreboard objectives add jc_bwand.z2 dummy
 scoreboard objectives add mypack.tmp dummy
 ```
 
 ```mcfunction
 # as the player, whenever the box changes: write the bounds first, then a fresh revision
-# (jcts.bw.x1 / z1 / x2 / z2 already set here)
+# (jc_bwand.x1 / z1 / x2 / z2 already set here)
 scoreboard players add #rev mypack.tmp 1
-scoreboard players operation @s jcts.bw.rev = #rev mypack.tmp
+scoreboard players operation @s jc_bwand.rev = #rev mypack.tmp
 ```
 
 ```mcfunction
 # as the player, when the selection is cleared
-scoreboard players reset @s jcts.bw.rev
+scoreboard players reset @s jc_bwand.rev
 ```
 
 ```mcfunction
 # as the player, on confirm
-execute unless score @s jcts.bw.ok = @s jcts.bw.rev run return run title @s actionbar {text:"Checking...",color:"gray"}
-execute if entity @s[tag=jcts.bw.deny] run return run title @s actionbar {text:"You can't build here",color:"red"}
+execute unless score @s jc_bwand.ok = @s jc_bwand.rev run return run title @s actionbar {text:"Checking...",color:"gray"}
+execute if entity @s[tag=jc_bwand.deny] run return run title @s actionbar {text:"You can't build here",color:"red"}
 function mypack:fill_box
 ```
 
-A datapack that waits for `jcts.bw.ok` will wait forever on a server without this plugin. JPack has its own switch
-for that, `#bw_towny jcts.bw.cfg` (1 by default, which waits for the plugin; set it to 0 only where the plugin is not
-installed). If you write your own datapack against this interface, give it a similar switch.
+A datapack that waits for `jc_bwand.ok` will wait forever on a server without this plugin. Builder's Wand has its
+own switch for that, `#towny jc_bwand.cfg` (1 by default, which waits for the plugin; set it to 0 only where the
+plugin is not installed). If you write your own datapack against this interface, give it a similar switch.
 
 ### J's Arcana only: spells, foci, keystones and placed objects
 
@@ -329,7 +332,7 @@ for `jsarcana.town` (`TownyAPI.getTown`) do not go through that cache.
 What runs, and how often:
 
 - **Every tick**
-  - Builder's Wand (only if the `jcts.bw.*` objectives exist): one score lookup per online player; a new or changed
+  - Builder's Wand (only if the `jc_bwand.*` objectives exist): one score lookup per online player; a new or changed
     box costs one Towny check per chunk it overlaps (at most 25, since a box is at most 64 blocks wide).
   - J's Arcana (only if `jsarcana.sp.dg` exists): one pass over the online players to map `jsarcana.pid` to
     players, then one pass over every marker entity in every loaded world, with one score lookup each. Markers from
@@ -354,15 +357,22 @@ Raising the `every.*` values lowers the cost. Spells in flight are always checke
 - Spells whose caster is offline are limited to wilderness.
 - No commands, no permissions, no reload; the config is read at startup.
 - The tags live on the entities. If you remove the plugin, players keep whatever tags they had last; clear them
-  with `tag @a remove jsarcana.notown`, `tag @a remove jsarcana.edge` and `tag @a remove jcts.bw.deny` (`@a` only
-  reaches players who are online), and set JPack's `#bw_towny jcts.bw.cfg` to 0.
+  with `tag @a remove jsarcana.notown`, `tag @a remove jsarcana.edge` and `tag @a remove jc_bwand.deny` (`@a` only
+  reaches players who are online), and set Builder's Wand's `#towny jc_bwand.cfg` to 0.
 
 ## Changelog
 
+1.5.0
+- The Builder's Wand is now its own pack (namespace `jc_bwand`), no longer part of JPack. The box check's objectives
+  and tag are renamed to match: `jc_bwand.rev`, `jc_bwand.ok`, `jc_bwand.x1`, `jc_bwand.z1`, `jc_bwand.x2`,
+  `jc_bwand.z2` and the tag `jc_bwand.deny`. The old JPack names are no longer read or written (no compatibility).
+  `every.builders-wand` keeps its name. Nothing else changed.
+
 1.4.0
-- JPack's Builder's Wand: checks each selection box against Towny and writes `jcts.bw.ok` and the tag
-  `jcts.bw.deny` (see "Builder's Wand box check"). New `every.builders-wand` in `config.yml` (10 ticks). Without
-  JPack it does nothing; it works without the J's Arcana datapack too. Nothing else changed.
+- Builder's Wand box check (the wand was then part of JPack, under JPack's objective names): checks each selection
+  box against Towny and writes the checked revision and a deny tag (see "Builder's Wand box check"). New
+  `every.builders-wand` in `config.yml` (10 ticks). Without the wand pack it does nothing; it works without the J's
+  Arcana datapack too. Nothing else changed.
 
 1.3.0
 - Built for Paper 26.3: new Paper version string, Java 25, Towny's repository address fixed.
@@ -377,7 +387,7 @@ Earlier versions were not recorded.
 
 ## Credits
 
-Written for JCreates' datapacks J's Arcana and JPack.
+Written for JCreates' datapacks J's Arcana and Builder's Wand.
 
 ## License
 
